@@ -1,24 +1,33 @@
 import Usuario from '../models/Usuarios.js';
+import generarTokenM from '../helpers/generarTokenManual.js'
 
-const usuarios = (req, res) => {
-  try {
-    conectarDB.query('SELECT * from adx_users', (error,result) => {
-      res.json(result)
-    })
-  } catch (error) {
-    console.log(error);
+//Consulta Global de Usuarios
+const consultarUsuarios = async (req,res) => {
+  const usuarios = await Usuario.find(); //find() busca por todos los registros existentes
+  res.json(usuarios);
+}
+
+//Creacion de Usuario
+const crearUsuario = async (req, res) => {
+  const { email, username } = req.body;
+
+  const existeUsuarioCorreo = await Usuario.findOne({email}); //Busca si existe un registro que coincida
+  const existeUsuario = await Usuario.findOne({username}); //Busca si existe un registro que coincida
+  const existeId = await Usuario.find({}).sort([['id',-1]]).limit(1); //Busca el ultimo registro
+  let newId = parseInt(existeId[0].id);
+  if(newId) newId++;//Aumenta el ultimo registro en 1 */
+
+  if(existeUsuarioCorreo){
+    const error = new Error('Correo ya registrado'); 
+    return res.status(400).json({msg: error.message});
   }
-};
-
-const crearUsuario2 = async (req, res) => {
-  const { email } = req.body;
-  const existeUsuario = await Usuario.findOne({email});
   if(existeUsuario){
-    const error = new Error('Usuario ya registrado');
-    return re.status(400).json({msg: error.message});
+    const error = new Error('Nombre de Usuario ya registrado');
+    return res.status(400).json({msg: error.message});
   }
   try {
-    const usuario = new Usuario(req.body);
+    const usuario = new Usuario({...req.body,id:newId});//añade un nuevo ID en caso de ser necesario
+    usuario.token = generarTokenM();
     const usuarioAlmacenado = await usuario.save();
     res.json(usuarioAlmacenado);
   } catch (error) {
@@ -26,31 +35,37 @@ const crearUsuario2 = async (req, res) => {
   }
 }
 
-/* const crearUsuario = (req, res) => {
-  const { email } = req.body;
-  const existeUsuario = await usuarios.findOne({email})
-  console.log (existeUsuario);
-  try {
-    conectarDB.query('INSERT INTO adx_users SET ?', req.body, (error, result, fields) => {
-      console.log(result);
-    })
-  } catch (error) {
-    console.log(error);
-  }
-} */
+//Edicion de Usuario
+const editarUsuario = async (req,res) => {
+  const { id, email, username } = req.body;
+  const usuario = await Usuario.findOne( {id} ); //find() el ID que coincida
 
-const editarUsuario = (req, res) => {
-  try {
-    conectarDB.query('UPDATE adx_users SET data = ? WHERE id = ?', (error,result) => {
-      res.json(result)
-    })
-  } catch (error) {
-    console.log(error);
-  }
-};
+  const existeUsuarioCorreo = await Usuario.findOne({email}); //Busca si existe un registro que coincida
+  const existeUsuario = await Usuario.findOne({username}); //Busca si existe un registro que coincida
+  
+  usuario.username = req.body.username || usuario.username; 
+  usuario.email = req.body.email || usuario.email;
 
+  if(existeUsuarioCorreo){
+    const error = new Error('Correo ya registrado'); 
+    return res.status(400).json({msg: error.message});
+  }
+  if(existeUsuario){
+    const error = new Error('Nombre de Usuario ya registrado');
+    return res.status(400).json({msg: error.message});
+  }
+
+  try {
+    const usuarioModificado = await usuario.save()
+    res.json(usuarioModificado);
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+// Exports del controlador
 export {
-  usuarios, 
-  crearUsuario2,
+  consultarUsuarios,
+  crearUsuario,
   editarUsuario
 };
