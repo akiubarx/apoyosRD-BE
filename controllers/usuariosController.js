@@ -3,7 +3,7 @@ import generarTokenM from '../helpers/generarTokenManual.js'
 import { isExistUSrMail } from '../customMiddelwares/validaciones.js'
 
 //Consulta Global de Usuarios
-const consultarUsuarios = async (req,res) => {
+const consultarUsuarios = async (req, res) => {
   const usuarios = await Usuario.find(); //find() busca por todos los registros existentes
   res.json(usuarios);
 }
@@ -11,13 +11,13 @@ const consultarUsuarios = async (req,res) => {
 //Creacion de Usuario
 const crearUsuario = async (req, res) => {
 
-  if(isExistUSrMail({req,res})){
-    const existeId = await Usuario.find({}).sort([['id',-1]]).limit(1); //Busca el ultimo registro
+  if (isExistUSrMail({ req, res })) {
+    const existeId = await Usuario.find({}).sort([['id', -1]]).limit(1); //Busca el ultimo registro
     let newId = parseInt(existeId[0].id);
-    if(newId) newId++;//Aumenta el ultimo registro en 1
+    if (newId) newId++;//Aumenta el ultimo registro en 1
 
     try {
-      const usuario = new Usuario({...req.body,id:newId});//añade un nuevo ID en caso de ser necesario
+      const usuario = new Usuario({ ...req.body, id: newId });//añade un nuevo ID en caso de ser necesario
       usuario.token = generarTokenM();
       const usuarioAlmacenado = await usuario.save();
       res.json(usuarioAlmacenado);
@@ -28,18 +28,19 @@ const crearUsuario = async (req, res) => {
 }
 
 //Edicion de Usuario
-const editarUsuario = async (req,res) => {
+const editarUsuario = async (req, res) => {
   const { id } = req.body;
-  if(isExistUSrMail({req,res})){
-    const usuario = await Usuario.findOne( {id} ); //find() el ID que coincida
-    usuario.username = req.body.username || usuario.username; 
+  if (isExistUSrMail({ req, res })) {
+    const usuario = await Usuario.findOne({ id }); //find() el ID que coincida
+    usuario.username = req.body.username || usuario.username;
     usuario.email = req.body.email || usuario.email;
 
     try {
-      const usuarioModificado = await usuario.save()
+      const usuarioModificado = await Usuario.updateOne({ _id: id }, { $set: req.body });
+      // const usuarioModificado = await usuario.save()
       res.json(usuarioModificado);
     } catch (error) {
-      console.log('Error al editar Usuario');
+      console.log('Error al editar Usuario', error);
     }
   };
 }
