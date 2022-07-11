@@ -37,9 +37,10 @@ const editarUsuario = async (req,res) => {
 
     try {
       const usuarioModificado = await usuario.save()
+      /* const usuarioModificado = await Usuario.updateOne({ _id: id }, { $set: req.body }); */
       res.json(usuarioModificado);
     } catch (error) {
-      console.log('Error al editar Usuario');
+      console.log('Error al editar Usuario', error);
     }
   };
 }
