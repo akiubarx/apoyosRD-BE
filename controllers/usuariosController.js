@@ -44,9 +44,42 @@ const editarUsuario = async (req,res) => {
   };
 }
 
+//Autenticar Usuarios
+//Identificar si el usuario existe
+const autenticar = async ( req,res ) => {
+  const { email, password } = req.body;
+  //Comprabar si existe
+  const usuario = await Usuario.findOne( {email} );
+  if(!usuario){
+    const error = new Error ('Usuario no existe');
+    return res.status(404).json({ msg: error.message });
+  }
+  console.log(usuario);
+  //Comprobar si esta activo
+  if(!usuario.is_activedirectory){
+    const error = new Error ('Usuario no activado');
+    return res.status(404).json({ msg: error.message });
+  }
+  //Comprobar Password
+  if( await usuario.comprobarPassword(password) ){
+    res.json({
+      dbId: usuario._id,
+      id: usuario.id,
+      name: usuario.username,
+      email: usuario.email
+    })
+  } else { 
+    const error = new Error ('Contraseña incorrecta');
+    return res.status(404).json({ msg: error.message });
+  }
+  
+}
+
+
 // Exports del controlador
 export {
   consultarUsuarios,
   crearUsuario,
-  editarUsuario
+  editarUsuario,
+  autenticar
 };
