@@ -1,6 +1,6 @@
 import Usuario from '../models/Usuarios.js';
 import generarTokenM from '../helpers/generarTokenManual.js'
-import { isExistUSrMail } from '../customMiddelwares/validaciones.js'
+import { isExistUSrMail, wasRecordModified } from '../customMiddelwares/validaciones.js'
 
 //Consulta Global de Usuarios
 const consultarUsuarios = async (req,res) => {
@@ -29,21 +29,30 @@ const crearUsuario = async (req, res) => {
 
 //Edicion de Usuario
 const editarUsuario = async (req,res) => {
-  const { id } = req.body;
-  if(isExistUSrMail({req,res})){
-    const usuario = await Usuario.findOne( {id} ); //find() el ID que coincida
-    usuario.username = req.body.username || usuario.username; 
-    usuario.email = req.body.email || usuario.email;
+  const { id, email, username } = req.body;
+  const usuario = await Usuario.findOne( {id} ); //find() el ID que coincida
+  const existeUsuarioCorreo = await Usuario.findOne({email}); //Busca si existe un registro que coincida
+  const existeUsuario = await Usuario.findOne({username}); //Busca si existe un registro que coincida
 
-    try {
+  usuario.username = req.body.username || usuario.username; 
+  usuario.email = req.body.email || usuario.email;
+
+  if(existeUsuarioCorreo){
+    const error = new Error('Correo ya registrado'); 
+    return res.status(400).json({msg: error.message});
+  }
+  if(existeUsuario){
+    const error = new Error('Nombre de Usuario ya registrado');
+    return res.status(400).json({msg: error.message});
+  }
+
+  try {
       const usuarioModificado = await usuario.save()
-      /* const usuarioModificado = await Usuario.updateOne({ _id: id }, { $set: req.body }); */
       res.json(usuarioModificado);
-    } catch (error) {
-      console.log('Error al editar Usuario', error);
-    }
-  };
-}
+  } catch (error) {
+      console.log('Error al editar Usuario');
+  }
+};
 
 //Autenticar Usuarios
 //Identificar si el usuario existe

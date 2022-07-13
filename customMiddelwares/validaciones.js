@@ -13,6 +13,12 @@ const isExistUSrMail = async (props) => {
   }
 }
 
+const wasRecordModified = props => {
+  const { model } = props
+  return model.modifiedCount > 0 ? true : false
+}
+
 export {
-  isExistUSrMail
+  isExistUSrMail,
+  wasRecordModified
 }
