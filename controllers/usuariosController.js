@@ -1,6 +1,7 @@
 import Usuario from '../models/Usuarios.js';
 import generarTokenM from '../helpers/generarTokenManual.js'
-import { isExistUSrMail, wasRecordModified } from '../customMiddelwares/validaciones.js'
+import generarJWT from '../helpers/generarJWT.js'
+import { isExistUSrMail } from '../customMiddelwares/validaciones.js'
 
 //Consulta Global de Usuarios
 const consultarUsuarios = async (req,res) => {
@@ -76,13 +77,50 @@ const autenticar = async ( req,res ) => {
       dbId: usuario._id,
       id: usuario.id,
       name: usuario.username,
-      email: usuario.email
+      email: usuario.email,
+      token: generarJWT(usuario.id,usuario._id),
     })
   } else { 
     const error = new Error ('Contraseña incorrecta');
     return res.status(404).json({ msg: error.message });
   }
-  
+}
+
+//Confirmando usuario
+const confirmarUsuario = async(req,res) => {
+  const { token } = req.params; //params toma el valor que se esta enviando desde la url
+  const usuarioConfirmar = await Usuario.findOne({ token })
+  if(!usuarioConfirmar){
+    const error = new Error ('Token no valido');
+    return res.status(403).json({ msg: error.message });
+  }
+
+  try {
+    usuarioConfirmar.is_activedirectory = true;//Se confirma el usuario en active directory
+    usuarioConfirmar.token = '';//Eliminamos el token temporal
+    await usuarioConfirmar.save();//Guarda los cambios en la DB
+    res.json({msg: 'Cuenta confirmada'});
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+//Recuperar contraseña
+const missingPassword = async(req,res) => {
+  const { email } = req.body;
+  const usuario = await Usuario.findOne({ email });
+  if(!usuario){
+    const error = new Error ('Usuario no existe');
+    return res.status(404).json({ msg: error.message });
+  }
+
+  try {
+    usuario.token = generarTokenM();
+    await usuario.save();
+    console.log(usuario);
+  } catch (error) {
+    console.log('Error')
+  }
 }
 
 
@@ -91,5 +129,7 @@ export {
   consultarUsuarios,
   crearUsuario,
   editarUsuario,
-  autenticar
+  autenticar,
+  confirmarUsuario,
+  missingPassword
 };
