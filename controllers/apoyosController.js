@@ -20,11 +20,11 @@ const crearApoyo = async (req, res) => {
     const existeId = await Apoyo.find({}).sort([['id',-1]]).limit(1); //Busca el ultimo registro
     console.log(existeId)
     let newId = existeId.lenght ? parseInt(existeId[0].id) : 0;
-    if(newId) newId++;//Aumenta el ultimo registro en 1
+    newId++;//Aumenta el ultimo registro en 1
     const existeOrd = await Apoyo.find({}).sort([['orden',-1]]).limit(1); //Busca el orden del ultimo registro
     console.log(existeOrd)
     let newOrd = existeOrd.lenght ? parseInt(existeOrd[0].orden) : 0;
-    if(newOrd) newOrd++;//Aumenta el ultimo registro en 1
+    newOrd++;//Aumenta el ultimo registro en 1
     
     try {
       //
