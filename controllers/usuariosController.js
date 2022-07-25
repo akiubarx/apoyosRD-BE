@@ -30,7 +30,7 @@ const crearUsuario = async (req, res) => {
 
 //Edicion de Usuario
 const editarUsuario = async (req,res) => {
-  const { id, email, username } = req.body;
+  const { id, email, username } = req.body; //.body toma el valor que se esta enviando desde el formulario
   const usuario = await Usuario.findOne( {id} ); //find() el ID que coincida
   const existeUsuarioCorreo = await Usuario.findOne({email}); //Busca si existe un registro que coincida
   const existeUsuario = await Usuario.findOne({username}); //Busca si existe un registro que coincida
@@ -123,6 +123,51 @@ const missingPassword = async(req,res) => {
   }
 }
 
+//Comprobar Token
+const comprobarToken = async (req,res) => {
+  const { token } = req.params;
+  const tokenValido = await Usuario.findOne({ token })
+  if(tokenValido) {
+    res.json({
+      msg: 'El Token y el Usuario existen',
+      dbId: tokenValido._id,
+      id: tokenValido.id,
+      name: tokenValido.username,
+      email: tokenValido.email,
+      token: tokenValido.token
+    })
+  } else {
+    const error = new Error ('Token No Valido');
+    return res.status(404).json({ msg: error.message });
+  }
+}
+
+//Generar nuevo Password
+const nuevoPassword = async (req,res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+  const usuario = await Usuario.findOne({ token })
+
+  if(usuario) {
+    usuario.password = password;
+    usuario.token = '';
+    try {
+      await usuario.save();
+      res.json({ msg: 'Password modificado correctamente' });
+    } catch (error) {
+      console.log(error)
+    }
+  } else {
+    const error = new Error ('Token No Valido');
+    return res.status(404).json({ msg: error.message });
+  }
+}
+
+//Generar Perfil
+const perfil = async (req,res) => {
+  const { usuario } = req;
+  res.json(usuario);
+}
 
 // Exports del controlador
 export {
@@ -131,5 +176,8 @@ export {
   editarUsuario,
   autenticar,
   confirmarUsuario,
-  missingPassword
+  missingPassword,
+  comprobarToken,
+  nuevoPassword,
+  perfil
 };
