@@ -16,19 +16,20 @@ const consultarApoyo = async (req,res) => {
 
 //Creacion de Apoyo
 const crearApoyo = async (req, res) => {
-  if(isNotExistApoyoName({req,res})){
-    const existeId = await Apoyo.find({}).sort([['id',-1]]).limit(1); //Busca el ultimo registro
-    console.log(existeId)
-    let newId = existeId.lenght ? parseInt(existeId[0].id) : 0;
+  if (isNotExistApoyoName({ req, res })) {
+    const existeId = await Apoyo.find({}).sort([['id', -1]]).limit(1); //Busca el ultimo registro
+
+    let newId = existeId.length > 0 ? parseInt(existeId[0].id) : 0;
     newId++;//Aumenta el ultimo registro en 1
-    const existeOrd = await Apoyo.find({}).sort([['orden',-1]]).limit(1); //Busca el orden del ultimo registro
-    console.log(existeOrd)
-    let newOrd = existeOrd.lenght ? parseInt(existeOrd[0].orden) : 0;
+    const existeOrd = await Apoyo.find({}).sort([['orden', -1]]).limit(1); //Busca el orden del ultimo registro
+
+    let newOrd = existeOrd.length > 0 ? parseInt(existeOrd[0].orden) : 0;
     newOrd++;//Aumenta el ultimo registro en 1
-    
+
+
     try {
       //
-      const apoyos = new Apoyo({...req.body, id:newId, orden:newOrd});//añade un nuevo ID y Orden en caso de ser necesario
+      const apoyos = new Apoyo({ ...req.body, id: newId, orden: newOrd });//añade un nuevo ID y Orden en caso de ser necesario
       apoyos.creado = req.usuario.username
       //
       const apoyosAlmacenado = await apoyos.save();
