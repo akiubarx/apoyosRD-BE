@@ -53,7 +53,7 @@ const apoyoSchema = mongoose.Schema({
     ref: 'Usuarios'
   },
   modificado:{
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.String,
     ref: 'Usuarios',
     default: null
   },
