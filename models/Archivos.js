@@ -1,52 +1,68 @@
 import mongoose from "mongoose";
 
-const apoyoSchema = mongoose.Schema({
+const archivoSchema = mongoose.Schema({
   id:{
     type: String,
     required: true,
     default: 0,
     unique: true
   },
-  publicado:{
-    type: String,
-    required: true
-  },
-  orden:{
+  preload:{
     type: String,
     required: true,
     default: 0,
-    unique: true
+  },
+  apoyo_id:{
+    type: String,
+    required: true,
+    default: 0,
+  },
+  carpeta_id:{
+    type: String,
+    required: true,
+    default: 0,
+  },
+  busqueda:{
+    type: String,
+    required: true,
+    default: 0,
+  },
+  estado:{
+    type: String,
+    required: true,
+    default: 0,
   },
   nombre:{
     type: String,
     required: true,
     trim: true,
-    unique: true
   },
   descripcion:{
     type: String,
     required: true,
     trim: true,
   },
-  categorias:{
+  fecha_publicacion:{
+    type: String,
+    default: 0,
+  },
+  fecha_modificacion:{
+    type: String,
+    default: 'NULL'
+  },
+  archivo:{
     type: String,
     required: true,
-    trim: true
   },
-  estados:{
+  publico:{
     type: String,
     required: true,
-    trim: true
+    default: 1,
   },
-  anio:{
+  orden:{
     type: String,
     required: true,
-    trim: true
-  },
-  imagen:{
-    type: String,
-    trim: true,
-    default: null
+    default: 1,
   },
   creado:{
     type: mongoose.Schema.Types.String,
@@ -59,12 +75,22 @@ const apoyoSchema = mongoose.Schema({
   modificado:{
     type: mongoose.Schema.Types.String,
     ref: 'Usuarios',
-    default: null
+    default: 'NULL'
   },
   modificacion:{
     type: String,
     default: 0,
   },  
+  descargas:{
+    type: String,
+    required: true,
+    default: 0,
+  },
+  file_size:{
+    type: String,
+    required: true,
+    default: 0,
+  },
 },{
   timestamps: {
     createdAt: 'creacion',
@@ -73,7 +99,7 @@ const apoyoSchema = mongoose.Schema({
 });
 
 
-const Apoyo = mongoose.model('Apoyo', apoyoSchema, 'Apoyos2');
+const Archivo = mongoose.model('Archivo', archivoSchema, 'Archivos2');
 
 
-export default Apoyo;
+export default Archivo;

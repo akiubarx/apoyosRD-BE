@@ -37,6 +37,7 @@ const editarUsuario = async (req,res) => {
 
   usuario.username = req.body.username || usuario.username; 
   usuario.email = req.body.email || usuario.email;
+  usuario.role_id = req.body.role_id || usuario.role_id;
 
   if(existeUsuarioCorreo){
     const error = new Error('Correo ya registrado'); 

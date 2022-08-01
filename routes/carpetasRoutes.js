@@ -1,15 +1,32 @@
 import express from "express";
-import connection from '../models/db.js';
-const router = express.Router();
 
-router.get('/', (req, res) => {
-  connection.query('SELECT * from cat_carpetas', (error,result) => {
-    if (error) {
-      res.send('Error Buscando Apoyos')
-    } else {
-      res.send(result)
-    }
-  })
-})
+const router = express.Router();
+import { 
+  consultarCarpetas,
+  consultarCarpeta,
+  crearCarpeta,
+  editarCarpeta,
+  eliminarCarpeta
+ } from '../controllers/carpetasController.js';
+
+import checkAuth from '../customMiddelwares/checkAuth.js'
+
+//GET
+
+
+//POST
+
+
+//PUT
+
+
+//Rutas agrupadas GET,POST,PUT
+router.route('/').get(checkAuth, consultarCarpetas).post(checkAuth, crearCarpeta) //Muestra Carpetas //Crea nuevo Carpeta
+router
+.route('/:id')
+.get(checkAuth, consultarCarpeta ) //Muestra 1 Carpeta
+.put(checkAuth, editarCarpeta) //Edita 1 Carpeta
+.delete(checkAuth, eliminarCarpeta) //Elimina 1 Carpeta
+
 
 export default router;
