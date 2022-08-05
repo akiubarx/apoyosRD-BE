@@ -13,8 +13,20 @@ import apoyosRoutes from './routes/apoyosRoutes.js';
 
 const app = express();
 dotenv.config();
-var corsOptions = {
-  origin: "http://localhost:8081"
+
+//Aqui se configura el permiso de conexion entre BE y FE
+const whitelist = [process.env.FRONTEND_URL];//Se setea la ruta en variable de entorno
+
+const corsOptions = {
+  origin: function(origin, callback){
+    if(whitelist.includes(origin)){
+      // Puede Consultar
+      callback(null,true);
+    } else {
+      //No puede Consultar
+      callback(new Error('Error de Cors'));
+    }
+  }
 };
 app.use(cors(corsOptions));
 // parse requests of content-type - application/json

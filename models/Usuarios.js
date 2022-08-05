@@ -10,6 +10,7 @@ const usuarioSchema = mongoose.Schema({
   },
   role_id:{
     type: String,
+    default: 2,
     required: true
   },
   username:{
@@ -64,7 +65,7 @@ usuarioSchema.methods.comprobarPassword = async function(passwordFormulario){
   return await bcrypt.compare(passwordFormulario, this.password);
 };
 
-const Usuario = mongoose.model('Usuario', usuarioSchema, 'Usuarios');
+const Usuario = mongoose.model('Usuario', usuarioSchema, 'Usuarios2');
 
 
 export default Usuario;

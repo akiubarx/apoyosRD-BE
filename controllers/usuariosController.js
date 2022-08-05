@@ -2,6 +2,7 @@ import Usuario from '../models/Usuarios.js';
 import generarTokenM from '../helpers/generarTokenManual.js'
 import generarJWT from '../helpers/generarJWT.js'
 import { isExistUSrMail } from '../customMiddelwares/validaciones.js'
+import { emailRegistro } from '../helpers/email.js'
 
 //Consulta Global de Usuarios
 const consultarUsuarios = async (req,res) => {
@@ -14,16 +15,24 @@ const crearUsuario = async (req, res) => {
 
   if(isExistUSrMail({req,res})){
     const existeId = await Usuario.find({}).sort([['id',-1]]).limit(1); //Busca el ultimo registro
-    let newId = parseInt(existeId[0].id);
-    if(newId) newId++;//Aumenta el ultimo registro en 1
+    let newId = existeId.length > 0 ? parseInt(existeId[0].id) : 0; 
+    newId++;
 
     try {
       const usuario = new Usuario({...req.body,id:newId});//añade un nuevo ID en caso de ser necesario
       usuario.token = generarTokenM();
-      const usuarioAlmacenado = await usuario.save();
-      res.json(usuarioAlmacenado);
+      await usuario.save();
+
+      //Se envia mail de confirmación
+      emailRegistro({
+        email: usuario.email,
+        usuario: usuario.username,
+        token: usuario.token
+      })
+
+      res.json({msg: 'Usuario Creado Correctamente, Se envio un mail a la cuenta de correo'});
     } catch (error) {
-      console.log('Error al registrar Usuario');
+      console.log('Error al registrar usuario');
     }
   };
 }
@@ -100,7 +109,7 @@ const confirmarUsuario = async(req,res) => {
     usuarioConfirmar.is_activedirectory = true;//Se confirma el usuario en active directory
     usuarioConfirmar.token = '';//Eliminamos el token temporal
     await usuarioConfirmar.save();//Guarda los cambios en la DB
-    res.json({msg: 'Cuenta confirmada'});
+    return res.json({msg: 'Cuenta confirmada'});
   } catch (error) {
     console.log(error)
   }
