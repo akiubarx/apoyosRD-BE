@@ -2,7 +2,7 @@ import Usuario from '../models/Usuarios.js';
 import generarTokenM from '../helpers/generarTokenManual.js'
 import generarJWT from '../helpers/generarJWT.js'
 import { isExistUSrMail } from '../customMiddelwares/validaciones.js'
-import { emailRegistro } from '../helpers/email.js'
+import { emailRegistro, missingPasswordMail } from '../helpers/email.js'
 
 //Consulta Global de Usuarios
 const consultarUsuarios = async (req,res) => {
@@ -68,9 +68,9 @@ const editarUsuario = async (req,res) => {
 //Autenticar Usuarios
 //Identificar si el usuario existe
 const autenticar = async ( req,res ) => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
   //Comprabar si existe
-  const usuario = await Usuario.findOne( {email} );
+  const usuario = await Usuario.findOne( {username} );
   if(!usuario){
     const error = new Error ('Usuario no existe');
     return res.status(404).json({ msg: error.message });
@@ -120,14 +120,20 @@ const missingPassword = async(req,res) => {
   const { email } = req.body;
   const usuario = await Usuario.findOne({ email });
   if(!usuario){
-    const error = new Error ('Usuario no existe');
+    const error = new Error ('El correo no esta registrado');
     return res.status(404).json({ msg: error.message });
   }
 
   try {
     usuario.token = generarTokenM();
+    usuario.is_activedirectory = false;
     await usuario.save();
-    console.log(usuario);
+    missingPasswordMail({
+      email: usuario.email,
+      usuario: usuario.username,
+      token: usuario.token
+    })
+    res.json({ msg: "Se envio un correo con las instrucciones"})
   } catch (error) {
     console.log('Error')
   }
@@ -160,6 +166,7 @@ const nuevoPassword = async (req,res) => {
 
   if(usuario) {
     usuario.password = password;
+    usuario.is_activedirectory = true;
     usuario.token = '';
     try {
       await usuario.save();
@@ -191,3 +198,5 @@ export {
   nuevoPassword,
   perfil
 };
+
+export default perfil;
