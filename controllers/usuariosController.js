@@ -197,6 +197,4 @@ export {
   comprobarToken,
   nuevoPassword,
   perfil
-};
-
-export default perfil;
+}
