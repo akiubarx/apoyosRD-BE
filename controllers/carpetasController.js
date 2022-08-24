@@ -28,8 +28,9 @@ const crearCarpeta = async (req, res) => {
     //
     const carpeta = new Carpeta({...req.body, id:newId});//añade un nuevo ID en caso de ser necesario
     //
-    const carpetaAlmacenado = await carpeta.save();
-    res.json(carpetaAlmacenado);
+    //const carpetaAlmacenado = 
+    await carpeta.save();
+    res.json({msg: `La carpeta Carpeta ${carpeta.nombre} se creo exitosamente con el Id ${carpeta.id}`});
   } catch (error) {
     console.log(error);
   };
