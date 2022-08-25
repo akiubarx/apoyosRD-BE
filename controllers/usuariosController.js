@@ -86,7 +86,7 @@ const autenticar = async ( req,res ) => {
     res.json({
       dbId: usuario._id,
       id: usuario.id,
-      name: usuario.username,
+      username: usuario.username,
       email: usuario.email,
       token: generarJWT(usuario.id,usuario._id),
     })
@@ -148,7 +148,7 @@ const comprobarToken = async (req,res) => {
       msg: 'El Token y el Usuario existen',
       dbId: tokenValido._id,
       id: tokenValido.id,
-      name: tokenValido.username,
+      username: tokenValido.username,
       email: tokenValido.email,
       token: tokenValido.token
     })
